@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 	//printf("\n%s, %s", jobsFile, resultFile);
 
 	do{
-		printf(" --------------------CPU Scheduler Simulator--------------------\n");
+		printf("\n--------------------CPU Scheduler Simulator--------------------\n");
 		printf("1) First come, first served scheduling.                     \n");
 		printf("2) Shortest-Job-First scheduling.                           \n");
 		printf("3) Priority Scheduling.                                     \n");
@@ -47,9 +47,40 @@ int main(int argc, char **argv)
 		printf("Please enter your option: ");
 		scanf("%d", &choice);
 
+		switch(choice){
 
+			case 1:
+				printf("\nFCFS method selected");
+				break;
 
-	} while (1);
+			case 2:
+				printf("\nSJF method selected");
+				break;
+			
+			case 3:
+				printf("\nPriority method selected");
+				break;
+
+			case 4: 
+				printf("\nRound Robin method selected");
+				break;
+
+			case 5:
+				printf("\nthis are the results");
+				break;
+
+			case 6:
+				printf("Terminating programe ...\n");
+				sleep(1);
+				break;
+			
+			default: 
+				printf("wrong choise has been made, please select again");
+				break;
+
+		}//switch case
+
+	} while (choice != 6);
 	
 		return 0;
 	}
