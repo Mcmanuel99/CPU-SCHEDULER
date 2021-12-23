@@ -6,18 +6,20 @@
 int main(int argc, char **argv){
 	
 	int c;
-	printf("This is the beginning of CPU SCHEDULER PROJECT");
+	char *jobsFile = NULL, *resultFile = NULL;
+
+	printf("This is the beginning of CPU SCHEDULER PROJECT\n");
 	
 	FILE *inputFile = NULL;
 
-	while((c = getopt (argc, argv, "f:0:") != -1)){
+	while((c = getopt (argc, argv, "f:o:")) != -1)
 
 		switch (c){
 			case 'f':
-				printf("an input file has been provided");
+				jobsFile = optarg;
 				break;
 			case 'o':
-				printf("an outputfile has been provided");
+				resultFile = optarg;
 				break;
 			case '?':
 				if(optopt == 'f' || optopt == 'o')
@@ -28,9 +30,8 @@ int main(int argc, char **argv){
 			default:
 				abort ();
 		}//switch
-	}//while
 
-	
 
+	printf("\n%s, %s", jobsFile, resultFile);
 	return 0;
 }
