@@ -40,6 +40,21 @@ struct process * insertBack(struct process *header, int a, int b, int c){
 	return header;
 }
 
+void display(struct process *header)
+{
+    if (header == NULL)
+        printf("\nList is empty\n");
+        
+    struct process *temp = header;
+
+    while (temp != NULL)
+    {
+        printf("%d %d %d-->",temp->burstTime,temp->arrivalTime,temp->burstTime);
+        temp=temp->next;
+    }
+    printf("\n");
+}
+
 int main(int argc, char **argv)
 {
 
@@ -178,4 +193,5 @@ void readFile( char *fileName){
 		}
 	}
 	fclose(fp);
+	display(jobs);
 }
