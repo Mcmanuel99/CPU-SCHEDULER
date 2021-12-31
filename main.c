@@ -8,6 +8,11 @@
 void readFile( char *fileName);
 void schedulingMethod();
 
+struct process{
+	int burstTime,arrivalTime, priority;
+	float waitingTime, turnArroundTime;
+	struct process *next;
+}*proc=NULL;
 
 int main(int argc, char **argv)
 {
@@ -25,6 +30,7 @@ int main(int argc, char **argv)
 		{
 		case 'f':
 			jobsFile = optarg;
+			readFile(jobsFile);
 			break;
 		case 'o':
 			resultFile = optarg;
@@ -135,5 +141,8 @@ void schedulingMethod(){
 }
 
 void readFile( char *fileName){
-
+	FILE *fp;
+	if ((fp = fopen(optarg, "r")) == NULL){
+		fprintf (stderr, "unable to open file %s\n", fileName);
+	}
 }
