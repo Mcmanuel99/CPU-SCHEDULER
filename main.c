@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <ctype.h>
 
+//global variables
+#define SIZE 1024
 
 //funtions 
 void readFile( char *fileName);
@@ -12,7 +14,31 @@ struct process{
 	int burstTime,arrivalTime, priority;
 	float waitingTime, turnArroundTime;
 	struct process *next;
-}*proc=NULL;
+}*jobs = NULL;
+
+struct process * new_process(int a, int b, int c){
+	struct process * temp;
+	temp=(struct process *)malloc(sizeof(struct process));
+	temp->burstTime=a;
+	temp->arrivalTime=b;
+	temp->priority=c;
+	return temp;
+}
+
+struct process * insertBack(struct process *header, int a, int b, int c){
+	struct process *temp, *headertemp;
+	temp=new_process(a,b,c);
+	if(header==NULL)
+	{
+		header=temp;
+		return header;
+	}
+	headertemp=header;
+	while(headertemp->next!=NULL)
+		headertemp=headertemp->next;
+	headertemp->next=temp;
+	return header;
+}
 
 int main(int argc, char **argv)
 {
@@ -141,8 +167,15 @@ void schedulingMethod(){
 }
 
 void readFile( char *fileName){
-	FILE *fp;
+	FILE *fp; char line[SIZE]; int num[3];
 	if ((fp = fopen(optarg, "r")) == NULL){
 		fprintf (stderr, "unable to open file %s\n", fileName);
+	}else{
+		while (fgets(line, SIZE, fp) != NULL) {
+			sscanf(line,"%d:%d:%d\n",&num[0],&num[1],&num[2]);
+			//printf("num1=%u num2=%u num3=%u\n",num[0],num[1],num[2]);
+			jobs = insertBack(jobs, num[0], num[1], num[2]);
+		}
 	}
+	fclose(fp);
 }
