@@ -6,53 +6,57 @@
 //global variables
 #define SIZE 1024
 
-//funtions 
-void readFile( char *fileName);
+//funtions
+void readFile(char *fileName);
 void schedulingMethod();
+void FirstComeFirstServe();
 
-struct process{
-	int burstTime,arrivalTime, priority;
+struct process
+{
+	int burstTime, arrivalTime, priority;
 	float waitingTime, turnArroundTime;
 	struct process *next;
-}*jobs = NULL;
+} *jobs = NULL;
 
-struct process * new_process(int a, int b, int c){
-	struct process * temp;
-	temp=(struct process *)malloc(sizeof(struct process));
-	temp->burstTime=a;
-	temp->arrivalTime=b;
-	temp->priority=c;
+struct process *new_process(int a, int b, int c)
+{
+	struct process *temp;
+	temp = (struct process *)malloc(sizeof(struct process));
+	temp->burstTime = a;
+	temp->arrivalTime = b;
+	temp->priority = c;
 	return temp;
 }
 
-struct process * insertBack(struct process *header, int a, int b, int c){
+struct process *insertBack(struct process *header, int a, int b, int c)
+{
 	struct process *temp, *headertemp;
-	temp=new_process(a,b,c);
-	if(header==NULL)
+	temp = new_process(a, b, c);
+	if (header == NULL)
 	{
-		header=temp;
+		header = temp;
 		return header;
 	}
-	headertemp=header;
-	while(headertemp->next!=NULL)
-		headertemp=headertemp->next;
-	headertemp->next=temp;
+	headertemp = header;
+	while (headertemp->next != NULL)
+		headertemp = headertemp->next;
+	headertemp->next = temp;
 	return header;
 }
 
 void display(struct process *header)
 {
-    if (header == NULL)
-        printf("\nList is empty\n");
-        
-    struct process *temp = header;
+	if (header == NULL)
+		printf("\nList is empty\n");
 
-    while (temp != NULL)
-    {
-        printf("%d %d %d-->",temp->burstTime,temp->arrivalTime,temp->burstTime);
-        temp=temp->next;
-    }
-    printf("\n");
+	struct process *temp = header;
+
+	while (temp != NULL)
+	{
+		printf("%d %d Waiting Time: %f\n", temp->burstTime, temp->arrivalTime, temp->waitingTime);
+		temp = temp->next;
+	}
+	printf("\n");
 }
 
 int main(int argc, char **argv)
@@ -128,70 +132,120 @@ int main(int argc, char **argv)
 
 	} while (choice != 4);
 
-
 	return 0;
 }
 
-void schedulingMethod(){
+void schedulingMethod()
+{
 
-		int choice;
-		printf("\n--------------------CPU Scheduler Simulator--------------------\n");
-		printf("1) First come, first served scheduling.                     \n");
-		printf("2) Shortest-Job-First scheduling.                           \n");
-		printf("3) Priority Scheduling.                                     \n");
-		printf("4) Round Robin Scheduling.                                  \n");
-		printf("5) Show Result.                                             \n");
-		printf("6) Terminate.                                               \n");
-		printf("---------------------------------------------------------------\n");
-		printf("Please enter your option: ");
-		scanf("%d", &choice);
+	int option;
+	printf("\n--------------------CPU Scheduler Simulator--------------------\n");
+	printf("1) First come, first served scheduling.                     \n");
+	printf("2) Shortest-Job-First scheduling.                           \n");
+	printf("3) Priority Scheduling.                                     \n");
+	printf("4) Round Robin Scheduling.                                  \n");
+	printf("5) Show Result.                                             \n");
+	printf("6) Terminate.                                               \n");
+	printf("---------------------------------------------------------------\n");
+	printf("Please enter your option: ");
+	scanf("%d", &option);
 
-		switch (choice)
-		{
+	switch (option)
+	{
 
-		case 1:
-			printf("\nFCFS method selected");
-			break;
+	case 1:
+		printf("\nFCFS method selected");
+		FirstComeFirstServe(jobs);
+		break;
 
-		case 2:
-			printf("\nSJF method selected");
-			break;
+	case 2:
+		printf("\nSJF method selected");
+		break;
 
-		case 3:
-			printf("\nPriority method selected");
-			break;
+	case 3:
+		printf("\nPriority method selected");
+		break;
 
-		case 4:
-			printf("\nRound Robin method selected");
-			break;
+	case 4:
+		printf("\nRound Robin method selected");
+		break;
 
-		case 5:
-			printf("\nthis are the results");
-			break;
+	case 5:
+		printf("\nthis are the results");
+		break;
 
-		case 6:
-			printf("Terminating programe ...\n");
-			sleep(1);
-			break;
+	case 6:
+		printf("Terminating programe ...\n");
+		sleep(1);
+		break;
 
-		default:
-			printf("wrong choise has been made, please select again");
-			break;
+	default:
+		printf("wrong choise has been made, please select again");
+		break;
 
-		} //switch case
+	} //switch case
 }
 
-void readFile( char *fileName){
-	FILE *fp; char line[SIZE]; int num[3];
-	if ((fp = fopen(optarg, "r")) == NULL){
-		fprintf (stderr, "unable to open file %s\n", fileName);
-	}else{
-		while (fgets(line, SIZE, fp) != NULL) {
-			sscanf(line,"%d:%d:%d\n",&num[0],&num[1],&num[2]);
+void readFile(char *fileName)
+{
+	FILE *fp;
+	char line[SIZE];
+	int num[3];
+	if ((fp = fopen(optarg, "r")) == NULL)
+	{
+		fprintf(stderr, "unable to open file %s\n", fileName);
+	}
+	else
+	{
+		while (fgets(line, SIZE, fp) != NULL)
+		{
+			sscanf(line, "%d:%d:%d\n", &num[0], &num[1], &num[2]);
 			//printf("num1=%u num2=%u num3=%u\n",num[0],num[1],num[2]);
 			jobs = insertBack(jobs, num[0], num[1], num[2]);
 		}
 	}
 	fclose(fp);
-	display(jobs);
+}
+
+void FirstComeFirstServe(struct process *header)
+{
+	int prevWaitingTime = 0;
+	int prevBurstTime = 0;
+	struct process *temp = header;
+	display(temp);
+	if (jobs == NULL)
+	{
+		printf("\njob list is empty!!");
+	}
+	else
+	{
+		
+		int i = 0;
+		while (temp != NULL)
+		{
+			if (temp->arrivalTime == 0)
+			{
+				
+				temp->waitingTime = 0;
+				printf("%d ",temp->arrivalTime);
+				prevBurstTime = temp->burstTime;
+				prevWaitingTime = temp->waitingTime;
+				printf("\nFirst Job waitinTime: %f", temp->waitingTime);
+				
+			}
+			else
+			{
+				
+				temp->waitingTime = prevBurstTime+prevWaitingTime;
+				prevBurstTime = temp->burstTime;
+				prevWaitingTime = temp->waitingTime;
+				printf("\nJob %d waitingTime: %f",i+1, temp->waitingTime);
+			}
+			i++;
+			temp = temp->next;
+		
+		}
+		
+	}
+	//display(temp);
 }
