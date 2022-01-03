@@ -13,8 +13,8 @@ void FirstComeFirstServe();
 
 struct process
 {
-	int burstTime, arrivalTime, priority;
-	float waitingTime, turnArroundTime;
+	int burstTime, arrivalTime, priority, serviceTime,waitingTime;
+	float turnArroundTime;
 	struct process *next;
 } *jobs = NULL;
 
@@ -53,7 +53,7 @@ void display(struct process *header)
 
 	while (temp != NULL)
 	{
-		printf("%d %d Waiting Time: %f\n", temp->burstTime, temp->arrivalTime, temp->waitingTime);
+		printf("%d %d Waiting Time: %d\n", temp->burstTime, temp->arrivalTime, temp->waitingTime);
 		temp = temp->next;
 	}
 	printf("\n");
@@ -226,21 +226,24 @@ void FirstComeFirstServe(struct process *header)
 			if (temp->arrivalTime == 0)
 			{
 				
-				temp->waitingTime = 0;
-				printf("%d ",temp->arrivalTime);
+				temp->serviceTime = 0;
+				//printf("%d ",temp->arrivalTime);
 				prevBurstTime = temp->burstTime;
-				prevWaitingTime = temp->waitingTime;
-				printf("\nFirst Job waitinTime: %f", temp->waitingTime);
+				prevWaitingTime = temp->serviceTime;
+				//printf("\nFirst Job waitinTime: %f", temp->waitingTime);
 				
 			}
 			else
 			{
 				
-				temp->waitingTime = prevBurstTime+prevWaitingTime;
+				temp->serviceTime = (prevBurstTime+prevWaitingTime);
 				prevBurstTime = temp->burstTime;
-				prevWaitingTime = temp->waitingTime;
-				printf("\nJob %d waitingTime: %f",i+1, temp->waitingTime);
+				prevWaitingTime = temp->serviceTime;
+				//printf("\nJob %d serviceTime: %d, arrivalTime: %d",i+1, temp->serviceTime, temp->arrivalTime);
 			}
+			
+			temp->waitingTime=temp->serviceTime - temp->arrivalTime;
+			printf("P%d: %d ms\n",i+1, temp->waitingTime);
 			i++;
 			temp = temp->next;
 		
