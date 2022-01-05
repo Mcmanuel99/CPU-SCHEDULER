@@ -5,6 +5,7 @@
 
 //global variables
 #define SIZE 1024
+char *jobsFile = NULL, *resultFile = NULL;
 
 //funtions
 void readFile(char *fileName);
@@ -44,6 +45,16 @@ struct process *insertBack(struct process *header, int a, int b, int c)
 	return header;
 }
 
+struct process *swap(struct process *process1, struct process *process2){
+	struct process * temp = process2->next;
+	process2->next = process1;
+	process1->next = temp;
+
+	return process2;
+}
+
+
+
 void display(struct process *header)
 {
 	if (header == NULL)
@@ -63,7 +74,6 @@ int main(int argc, char **argv)
 {
 
 	int c, choice;
-	char *jobsFile = NULL, *resultFile = NULL;
 
 	printf("This is the beginning of CPU SCHEDULER PROJECT\n");
 
@@ -207,11 +217,17 @@ void readFile(char *fileName)
 	fclose(fp);
 }
 
+void writeTofile(){
+
+}
+
 void FirstComeFirstServe(struct process *header)
 {
 	int prevWaitingTime = 0;
 	int prevBurstTime = 0;
 	struct process *temp = header;
+	FILE *f = fopen(resultFile, "a");
+	fprintf(f, "\nScheduling Method: First Come First Served\nProcess Waiting Times: \n");
 	display(temp);
 	if (jobs == NULL)
 	{
@@ -244,11 +260,60 @@ void FirstComeFirstServe(struct process *header)
 			
 			temp->waitingTime=temp->serviceTime - temp->arrivalTime;
 			printf("P%d: %d ms\n",i+1, temp->waitingTime);
+			fprintf(f,"P%d: %d ms\n",i+1, temp->waitingTime);
 			i++;
 			temp = temp->next;
 		
 		}
 		
 	}
+	fclose(f);
 	//display(temp);
 }
+
+
+// void FirstComeFirstServe(struct process *header)
+// {
+// 	int prevWaitingTime = 0;
+// 	int prevBurstTime = 0;
+// 	struct process *temp = header;
+// 	display(temp);
+// 	if (jobs == NULL)
+// 	{
+// 		printf("\njob list is empty!!");
+// 	}
+// 	else
+// 	{
+		
+// 		int i = 0;
+// 		while (temp != NULL)
+// 		{
+// 			if (temp->arrivalTime == 0)
+// 			{
+				
+// 				temp->serviceTime = 0;
+// 				//printf("%d ",temp->arrivalTime);
+// 				prevBurstTime = temp->burstTime;
+// 				prevWaitingTime = temp->serviceTime;
+// 				//printf("\nFirst Job waitinTime: %f", temp->waitingTime);
+				
+// 			}
+// 			else
+// 			{
+				
+// 				temp->serviceTime = (prevBurstTime+prevWaitingTime);
+// 				prevBurstTime = temp->burstTime;
+// 				prevWaitingTime = temp->serviceTime;
+// 				//printf("\nJob %d serviceTime: %d, arrivalTime: %d",i+1, temp->serviceTime, temp->arrivalTime);
+// 			}
+			
+// 			temp->waitingTime=temp->serviceTime - temp->arrivalTime;
+// 			printf("P%d: %d ms\n",i+1, temp->waitingTime);
+// 			i++;
+// 			temp = temp->next;
+		
+// 		}
+		
+// 	}
+// 	//display(temp);
+// }
