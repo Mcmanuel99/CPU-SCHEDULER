@@ -225,9 +225,12 @@ void FirstComeFirstServe(struct process *header)
 {
 	int prevWaitingTime = 0;
 	int prevBurstTime = 0;
+	int totalWaitingTime=0;
+	int i;
 	struct process *temp = header;
 	FILE *f = fopen(resultFile, "a");
 	fprintf(f, "\nScheduling Method: First Come First Served\nProcess Waiting Times: \n");
+	printf("\nScheduling Method: First Come First Served\nProcess Waiting Times: \n");
 	display(temp);
 	if (jobs == NULL)
 	{
@@ -236,7 +239,7 @@ void FirstComeFirstServe(struct process *header)
 	else
 	{
 		
-		int i = 0;
+		i = 0;
 		while (temp != NULL)
 		{
 			if (temp->arrivalTime == 0)
@@ -261,12 +264,15 @@ void FirstComeFirstServe(struct process *header)
 			temp->waitingTime=temp->serviceTime - temp->arrivalTime;
 			printf("P%d: %d ms\n",i+1, temp->waitingTime);
 			fprintf(f,"P%d: %d ms\n",i+1, temp->waitingTime);
+			totalWaitingTime = totalWaitingTime+temp->waitingTime;
 			i++;
 			temp = temp->next;
-		
+			
 		}
 		
 	}
+	printf("Average waiting Time: %d ms",totalWaitingTime/i);
+	fprintf(f, "Average waiting Time: %d ms",totalWaitingTime/i);
 	fclose(f);
 	//display(temp);
 }
