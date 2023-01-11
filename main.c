@@ -22,7 +22,7 @@ void schedulingMethod();
 void FirstComeFirstServe();
 void swap(struct process *current, struct process *next);
 void bubbleSort(struct process *head);
-void SJF(struct process *header);
+void ShortestJobFirst(struct process *header);
 
 struct process *new_process(int a, int b, int c)
 {
@@ -166,8 +166,8 @@ void schedulingMethod()
 		break;
 
 	case 2:
-		printf("\nSJF method selected");
-		SJF(jobs);
+		printf("\nShortest Job First method selected");
+		ShortestJobFirst(jobs);
 		break;
 
 	case 3:
@@ -315,8 +315,20 @@ void swap(struct process *current, struct process *next) {
     next->turnArroundTime = turnArroundTime;
 }
 
-void SJF(struct process *header){
+void ShortestJobFirst(struct process *header){
 	struct process *temp = header;
 	bubbleSort(temp);
-	display(temp);
+	// display(temp);
+	// display(jobs);
+
+	int clock =0;
+	
+	while (temp!=NULL)
+	{
+		temp->waitingTime = clock-temp->arrivalTime;
+		clock = clock+temp->burstTime;
+		printf("P: %d ms\n", temp->waitingTime);
+		temp = temp->next;
+	}
+	
 }
