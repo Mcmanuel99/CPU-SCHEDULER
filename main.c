@@ -2,15 +2,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <getopt.h>
 
 //global variables
 #define SIZE 1024
 char *jobsFile = NULL, *resultFile = NULL;
-
-//funtions
-void readFile(char *fileName);
-void schedulingMethod();
-void FirstComeFirstServe();
 
 struct process
 {
@@ -18,6 +14,15 @@ struct process
 	float turnArroundTime;
 	struct process *next;
 } *jobs = NULL;
+
+
+//funtions
+void readFile(char *fileName);
+void schedulingMethod();
+void FirstComeFirstServe();
+void swap(struct process *current, struct process *next);
+void bubbleSort(struct process *head);
+void SJF(struct process *header);
 
 struct process *new_process(int a, int b, int c)
 {
@@ -43,14 +48,6 @@ struct process *insertBack(struct process *header, int a, int b, int c)
 		headertemp = headertemp->next;
 	headertemp->next = temp;
 	return header;
-}
-
-struct process *swap(struct process *process1, struct process *process2){
-	struct process * temp = process2->next;
-	process2->next = process1;
-	process1->next = temp;
-
-	return process2;
 }
 
 
@@ -170,6 +167,7 @@ void schedulingMethod()
 
 	case 2:
 		printf("\nSJF method selected");
+		SJF(jobs);
 		break;
 
 	case 3:
@@ -277,49 +275,48 @@ void FirstComeFirstServe(struct process *header)
 	//display(temp);
 }
 
+void bubbleSort(struct process *head) {
+    int swapped;
+    struct process *current = head;
+    struct process *tmp = NULL;
+    do
+    {
+        swapped = 0;
+        current = head;
+        while (current->next != tmp)
+        {
+            if ((current->arrivalTime > current->next->arrivalTime) || (current->arrivalTime == current->next->arrivalTime && current->burstTime > current->next->burstTime))
+            {
+                swap(current, current->next);
+                swapped = 1;
+            }
+            current = current->next;
+        }
+        tmp = current;
+    } while (swapped);
+}
 
-// void FirstComeFirstServe(struct process *header)
-// {
-// 	int prevWaitingTime = 0;
-// 	int prevBurstTime = 0;
-// 	struct process *temp = header;
-// 	display(temp);
-// 	if (jobs == NULL)
-// 	{
-// 		printf("\njob list is empty!!");
-// 	}
-// 	else
-// 	{
-		
-// 		int i = 0;
-// 		while (temp != NULL)
-// 		{
-// 			if (temp->arrivalTime == 0)
-// 			{
-				
-// 				temp->serviceTime = 0;
-// 				//printf("%d ",temp->arrivalTime);
-// 				prevBurstTime = temp->burstTime;
-// 				prevWaitingTime = temp->serviceTime;
-// 				//printf("\nFirst Job waitinTime: %f", temp->waitingTime);
-				
-// 			}
-// 			else
-// 			{
-				
-// 				temp->serviceTime = (prevBurstTime+prevWaitingTime);
-// 				prevBurstTime = temp->burstTime;
-// 				prevWaitingTime = temp->serviceTime;
-// 				//printf("\nJob %d serviceTime: %d, arrivalTime: %d",i+1, temp->serviceTime, temp->arrivalTime);
-// 			}
-			
-// 			temp->waitingTime=temp->serviceTime - temp->arrivalTime;
-// 			printf("P%d: %d ms\n",i+1, temp->waitingTime);
-// 			i++;
-// 			temp = temp->next;
-		
-// 		}
-		
-// 	}
-// 	//display(temp);
-// }
+
+void swap(struct process *current, struct process *next) {
+    int burstTime = current->burstTime;
+    int arrivalTime = current->arrivalTime;
+    int serviceTime = current->serviceTime;
+    int waitingTime = current->waitingTime;
+    float turnArroundTime = current->turnArroundTime;
+    current->burstTime = next->burstTime;
+    current->arrivalTime = next->arrivalTime;
+    current->serviceTime = next->serviceTime;
+    current->waitingTime = next->waitingTime;
+    current->turnArroundTime = next->turnArroundTime;
+    next->burstTime = burstTime;
+    next->arrivalTime = arrivalTime;
+    next->serviceTime = serviceTime;
+    next->waitingTime = waitingTime;
+    next->turnArroundTime = turnArroundTime;
+}
+
+void SJF(struct process *header){
+	struct process *temp = header;
+	bubbleSort(temp);
+	display(temp);
+}
