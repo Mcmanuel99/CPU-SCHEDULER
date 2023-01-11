@@ -23,6 +23,8 @@ void FirstComeFirstServe();
 void swap(struct process *current, struct process *next);
 void bubbleSort(struct process *head);
 void ShortestJobFirst(struct process *header);
+void PriorityScheduling();
+void calculateWaitingTime();
 
 struct process *new_process(int a, int b, int c)
 {
@@ -172,6 +174,7 @@ void schedulingMethod()
 
 	case 3:
 		printf("\nPriority method selected");
+		PriorityScheduling();
 		break;
 
 	case 4:
@@ -331,4 +334,47 @@ void ShortestJobFirst(struct process *header){
 		temp = temp->next;
 	}
 	
+}
+
+void PriorityScheduling() {
+    int sorted = 0;
+    while (!sorted) {
+        sorted = 1;
+        struct process *current = jobs;
+        struct process *prev = NULL;
+        while (current != NULL && current->next != NULL) {
+            struct process *next = current->next;
+            if (next->priority > current->priority) {
+                if (prev == NULL) {
+                    jobs = next;
+                } else {
+                    prev->next = next;
+                }
+                current->next = next->next;
+                next->next = current;
+                prev = next;
+                sorted = 0;
+            } else {
+                prev = current;
+                current = next;
+            }
+        }
+    }
+	 calculateWaitingTime();
+    // Print waiting time of all jobs
+    struct process *p = jobs;
+    while (p != NULL) {
+        printf("Process with priority %d has waiting time %d\n", p->priority, p->waitingTime);
+        p = p->next;
+    }
+}
+
+void calculateWaitingTime() {
+    struct process *p = jobs;
+    int service_time = 0;
+    while (p != NULL) {
+        service_time += p->burstTime;
+        p->waitingTime = service_time - p->arrivalTime - p->burstTime;
+        p = p->next;
+    }
 }
