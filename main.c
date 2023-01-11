@@ -10,11 +10,10 @@ char *jobsFile = NULL, *resultFile = NULL;
 
 struct process
 {
-	int burstTime, arrivalTime, priority, serviceTime,waitingTime;
+	int burstTime, arrivalTime, priority, serviceTime,waitingTime, id;
 	float turnArroundTime;
 	struct process *next;
 } *jobs = NULL;
-
 
 //funtions
 void readFile(char *fileName);
@@ -25,21 +24,23 @@ void bubbleSort(struct process *head);
 void ShortestJobFirst(struct process *header);
 void PriorityScheduling();
 void calculateWaitingTime();
+void RoundRobinScheduling(int time_quantum);
 
-struct process *new_process(int a, int b, int c)
+struct process *new_process(int a, int b, int c, int pid)
 {
 	struct process *temp;
 	temp = (struct process *)malloc(sizeof(struct process));
 	temp->burstTime = a;
 	temp->arrivalTime = b;
 	temp->priority = c;
+	temp->id=pid;
 	return temp;
 }
 
-struct process *insertBack(struct process *header, int a, int b, int c)
+struct process *insertBack(struct process *header, int a, int b, int c, int pid)
 {
 	struct process *temp, *headertemp;
-	temp = new_process(a, b, c);
+	temp = new_process(a, b, c, pid);
 	if (header == NULL)
 	{
 		header = temp;
@@ -72,7 +73,7 @@ void display(struct process *header)
 int main(int argc, char **argv)
 {
 
-	int c, choice;
+	int c, choice,quantum;
 
 	printf("This is the beginning of CPU SCHEDULER PROJECT\n");
 
@@ -147,7 +148,7 @@ int main(int argc, char **argv)
 void schedulingMethod()
 {
 
-	int option;
+	int option, quantum;
 	printf("\n--------------------CPU Scheduler Simulator--------------------\n");
 	printf("1) First come, first served scheduling.                     \n");
 	printf("2) Shortest-Job-First scheduling.                           \n");
@@ -179,6 +180,9 @@ void schedulingMethod()
 
 	case 4:
 		printf("\nRound Robin method selected");
+		printf("\nEnter the time Quantum: ");
+		scanf("%d",&quantum);
+		RoundRobinScheduling(quantum);
 		break;
 
 	case 5:
@@ -208,11 +212,13 @@ void readFile(char *fileName)
 	}
 	else
 	{
+		int pid =1;
 		while (fgets(line, SIZE, fp) != NULL)
 		{
 			sscanf(line, "%d:%d:%d\n", &num[0], &num[1], &num[2]);
 			//printf("num1=%u num2=%u num3=%u\n",num[0],num[1],num[2]);
-			jobs = insertBack(jobs, num[0], num[1], num[2]);
+			jobs = insertBack(jobs, num[0], num[1], num[2],pid);
+			pid++;
 		}
 	}
 	fclose(fp);
@@ -232,7 +238,7 @@ void FirstComeFirstServe(struct process *header)
 	FILE *f = fopen(resultFile, "a");
 	fprintf(f, "\nScheduling Method: First Come First Served\nProcess Waiting Times: \n");
 	printf("\nScheduling Method: First Come First Served\nProcess Waiting Times: \n");
-	display(temp);
+	//display(temp);
 	if (jobs == NULL)
 	{
 		printf("\njob list is empty!!");
@@ -320,20 +326,28 @@ void swap(struct process *current, struct process *next) {
 
 void ShortestJobFirst(struct process *header){
 	struct process *temp = header;
+	int totalWaitingTime=0;
 	bubbleSort(temp);
 	// display(temp);
 	// display(jobs);
-
+	FILE *f = fopen(resultFile, "a");
 	int clock =0;
-	
+	fprintf(f, "\nScheduling Method: Shortest Job First Served\nProcess Waiting Times: \n");
+	printf("\nScheduling Method:  Shortest Job First\nProcess Waiting Times: \n");
+	int i=1;
 	while (temp!=NULL)
 	{
 		temp->waitingTime = clock-temp->arrivalTime;
 		clock = clock+temp->burstTime;
-		printf("P: %d ms\n", temp->waitingTime);
+		fprintf(f,"P%d: %d ms\n",temp->id, temp->waitingTime);
+		printf("P%d: %d ms\n", temp->id, temp->waitingTime);
+		totalWaitingTime = totalWaitingTime+temp->waitingTime;
+		i++;
 		temp = temp->next;
 	}
-	
+	printf("Average waiting Time: %d ms",totalWaitingTime/i);
+	fprintf(f, "Average waiting Time: %d ms",totalWaitingTime/i);
+	fclose(f);
 }
 
 void PriorityScheduling() {
@@ -376,5 +390,44 @@ void calculateWaitingTime() {
         service_time += p->burstTime;
         p->waitingTime = service_time - p->arrivalTime - p->burstTime;
         p = p->next;
+    }
+}
+
+void RoundRobinScheduling(int time_quantum) {
+    struct process *current = jobs;
+    int service_time = 0;
+    while (current != NULL) {
+        if (current->burstTime > time_quantum) {
+            current->burstTime -= time_quantum;
+        } else {
+            current->burstTime = 0;
+        }
+        service_time += time_quantum;
+        current = current->next;
+    }
+
+    current = jobs;
+    while (current != NULL) {
+        if (current->burstTime == 0) {
+            current->waitingTime = service_time - (current->arrivalTime + current->burstTime);
+            printf("Process with priority %d has waiting time %d\n", current->priority, current->waitingTime);
+            struct process *temp = current;
+            if (current == jobs) {
+                jobs = current->next;
+            }
+            current = current->next;
+            free(temp);
+        } else {
+            struct process *prev = current;
+            current = current->next;
+            while (current != NULL && current->burstTime == 0) {
+                current->waitingTime = service_time - (current->arrivalTime + current->burstTime);
+                printf("Process with priority %d has waiting time %d\n", current->priority, current->waitingTime);
+                struct process *temp = current;
+                current = current->next;
+                free(temp);
+                prev->next = current;
+            }
+        }
     }
 }
